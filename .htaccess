@@ -1,0 +1,169 @@
+# .htaccess - TechInHausa Production Configuration
+
+# Enable Rewrite Engine
+RewriteEngine On
+
+# Force HTTPS (uncomment when SSL is installed)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+# Remove trailing slashes (except for directories)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} /(.*)/$
+RewriteRule ^ /%1 [R=301,L]
+
+# ============================================
+# CONTENT URL ROUTING
+# ============================================
+
+# Video URLs - /video/slug
+RewriteRule ^videos/([a-zA-Z0-9_-]+)$ videos/single.php?slug=$1 [L,QSA]
+
+# Blog URLs - /blog/slug
+RewriteRule ^blog/([a-zA-Z0-9_-]+)$ blog/single.php?slug=$1 [L,QSA]
+
+# News URLs - /news/slug
+RewriteRule ^news/([a-zA-Z0-9_-]+)$ news/single.php?slug=$1 [L,QSA]
+
+# Research URLs - /research/slug
+RewriteRule ^research/([a-zA-Z0-9_-]+)$ research/single.php?slug=$1 [L,QSA]
+
+# Creator URLs - /creator/slug
+RewriteRule ^creator/([a-zA-Z0-9_-]+)$ creator/single.php?slug=$1 [L,QSA]
+
+# ============================================
+# PAGINATION ROUTING
+# ============================================
+
+# Video pagination - /videos/page/2
+RewriteRule ^videos/page/([0-9]+)$ videos/index.php?page=$1 [L,QSA]
+
+# Blog pagination - /blog/page/2
+RewriteRule ^blog/page/([0-9]+)$ blog/index.php?page=$1 [L,QSA]
+
+# News pagination - /news/page/2
+RewriteRule ^news/page/([0-9]+)$ news/index.php?page=$1 [L,QSA]
+
+# Research pagination - /research/page/2
+RewriteRule ^research/page/([0-9]+)$ research/index.php?page=$1 [L,QSA]
+
+# Creator pagination - /creator/page/2
+RewriteRule ^creator/page/([0-9]+)$ creator/index.php?page=$1 [L,QSA]
+
+# ============================================
+# CATEGORY FILTER ROUTING
+# ============================================
+
+# Videos by category - /videos/category/programming
+RewriteRule ^videos/category/([a-zA-Z0-9_-]+)$ videos/index.php?category=$1 [L,QSA]
+
+# Blog by category - /blog/category/ai-ml
+RewriteRule ^blog/category/([a-zA-Z0-9_-]+)$ blog/index.php?category=$1 [L,QSA]
+
+# News by category - /news/category/tech-news
+RewriteRule ^news/category/([a-zA-Z0-9_-]+)$ news/index.php?category=$1 [L,QSA]
+
+# Research by category - /research/category/research
+RewriteRule ^research/category/([a-zA-Z0-9_-]+)$ research/index.php?category=$1 [L,QSA]
+
+# ============================================
+# STATIC ASSETS
+# ============================================
+
+# Cache static assets
+<FilesMatch "\.(css|js|jpg|jpeg|png|gif|ico|webp|svg|woff|woff2|ttf|eot)$">
+    Header set Cache-Control "max-age=2592000, public"
+</FilesMatch>
+
+# ============================================
+# SECURITY HEADERS
+# ============================================
+
+<IfModule mod_headers.c>
+    # Prevent MIME type sniffing
+    Header set X-Content-Type-Options "nosniff"
+    
+    # Prevent clickjacking
+    Header set X-Frame-Options "SAMEORIGIN"
+    
+    # Enable XSS protection
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # Referrer policy
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Content Security Policy (adjust as needed)
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://img.youtube.com; frame-src https://www.youtube.com"
+</IfModule>
+
+# ============================================
+# ERROR PAGES
+# ============================================
+
+ErrorDocument 404 /404.php
+ErrorDocument 403 /403.php
+ErrorDocument 500 /500.php
+
+# ============================================
+# PROTECT SENSITIVE FILES
+# ============================================
+
+# Block access to .htaccess itself
+<Files .htaccess>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Block access to sensitive files
+<FilesMatch "\.(ini|log|sql|json|lock|md|gitignore|env|example)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Block access to includes directory
+RewriteRule ^includes/ - [F,L]
+
+# Block access to partials directory
+RewriteRule ^partials/ - [F,L]
+
+# ============================================
+# COMPRESSION
+# ============================================
+# Serve sitemap.xml from sitemap.php
+RewriteRule ^sitemap\.xml$ sitemap.php [L]
+<IfModule mod_deflate.c>
+    # Compress HTML, CSS, JavaScript, Text, XML, fonts
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/vnd.ms-fontobject
+    AddOutputFilterByType DEFLATE application/x-font
+    AddOutputFilterByType DEFLATE application/x-font-opentype
+    AddOutputFilterByType DEFLATE application/x-font-otf
+    AddOutputFilterByType DEFLATE application/x-font-truetype
+    AddOutputFilterByType DEFLATE application/x-font-ttf
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE font/opentype
+    AddOutputFilterByType DEFLATE font/otf
+    AddOutputFilterByType DEFLATE font/ttf
+    AddOutputFilterByType DEFLATE image/svg+xml
+    AddOutputFilterByType DEFLATE image/x-icon
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/xml
+</IfModule>
+
+# ============================================
+# DIRECTORY BROWSING
+# ============================================
+
+Options -Indexes
+
+# ============================================
+# DEFAULT CHARSET
+# ============================================
+
+AddDefaultCharset UTF-8

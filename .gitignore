@@ -1,0 +1,32 @@
+# Create .gitignore file
+cat > .gitignore << 'EOF'
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+
+# IDE Files
+.vscode/
+.idea/
+*.sublime-*
+
+# Logs
+*.log
+error_log
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+EOF
+
+# Create placeholder for uploads directory
+mkdir -p uploads
+touch uploads/.gitkeep

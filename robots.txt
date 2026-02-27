@@ -1,0 +1,17 @@
+# robots.txt for TechInHausa
+
+User-agent: *
+Allow: /
+
+# Disallow admin area
+Disallow: /admin/
+Disallow: /includes/
+Disallow: /partials/
+
+# Disallow temporary files
+Disallow: /*.sql$
+Disallow: /*.log$
+Disallow: /*.tmp$
+
+# Sitemap location
+Sitemap: https://techinhausa.com.ng/sitemap.xml
