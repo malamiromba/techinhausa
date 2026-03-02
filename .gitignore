@@ -1,5 +1,5 @@
-# Create .gitignore file
-cat > .gitignore << 'EOF'
+# TechInHausa .gitignore
+
 # OS Files
 .DS_Store
 Thumbs.db
@@ -25,8 +25,13 @@ error_log
 # Environment
 .env
 .env.local
-EOF
 
-# Create placeholder for uploads directory
-mkdir -p uploads
-touch uploads/.gitkeep
+# Vendor
+vendor/
+composer.lock
+
+# Project Specific
+techinhausa.zip
+techinhausa.sql
+uploads/*
+!uploads/.gitkeep

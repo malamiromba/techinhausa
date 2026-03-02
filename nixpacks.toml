@@ -1,2 +1,3 @@
 [providers.php]
 server = "apache"
+extensions = ["mysqli", "pdo_mysql", "gettext", "iconv", "mbstring"]

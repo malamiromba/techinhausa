@@ -3,6 +3,7 @@
    "description": "TechInHausa - Technology & AI Education in Hausa Language",
    "type": "project",
    "require": {
-      "php": "^8.2"
+      "php": "^8.2",
+      "ext-mysqli": "*"
    }
 }
