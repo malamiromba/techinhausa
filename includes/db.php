@@ -3,14 +3,15 @@
 require_once __DIR__ . '/config.php';
 
 // Create MySQLi connection
-$conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+$conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
 
 // Check connection with environment-aware error handling
 if (!$conn) {
     error_log("Database connection failed: " . mysqli_connect_error());
     
     // Show different messages based on environment
-    if (strpos(SITE_URL, 'localhost') !== false || strpos(SITE_URL, '127.0.0.1') !== false) {
+    $is_local = (strpos(SITE_URL, 'localhost') !== false || strpos(SITE_URL, '127.0.0.1') !== false);
+    if ($is_local) {
         die("Connection failed: " . mysqli_connect_error());
     } else {
         die("We're experiencing technical difficulties. Please try again later.");

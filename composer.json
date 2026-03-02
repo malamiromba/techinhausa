@@ -1,0 +1,8 @@
+{
+   "name": "techinhausa/techinhausa",
+   "description": "TechInHausa - Technology & AI Education in Hausa Language",
+   "type": "project",
+   "require": {
+      "php": "^8.0"
+   }
+}
