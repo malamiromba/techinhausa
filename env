@@ -1,0 +1,10 @@
+# Database Configuration
+MYSQLHOST=mysql.railway.internal
+MYSQLPORT=3306
+MYSQLDATABASE=railway
+MYSQLUSER=root
+MYSQLPASSWORD=oaoWjzDnrMZBVJSXzerPZfTEDfrJefhw
+
+# App Configuration
+SITE_NAME=TechInHausa
+SITE_DESC="Technology and AI content in Hausa language"
