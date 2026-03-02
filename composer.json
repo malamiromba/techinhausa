@@ -3,6 +3,6 @@
    "description": "TechInHausa - Technology & AI Education in Hausa Language",
    "type": "project",
    "require": {
-      "php": "^8.0"
+      "php": "^8.2"
    }
 }
