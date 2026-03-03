@@ -183,7 +183,7 @@ include 'partials/header.php';
                 <?php while ($item = mysqli_fetch_assoc($result)): ?>
                     <div class="creator-card <?= $item['content_type'] ?>">
                         <div class="creator-card-image">
-                            <a href="<?= SITE_URL ?>/creator-single.php?id=<?= $item['id'] ?>&slug=<?= $item['slug'] ?>">
+                            <a href="<?= SITE_URL ?>/item.php?id=<?= $item['id'] ?>&slug=<?= $item['slug'] ?>">
                                 <img src="<?= getImageUrl($item['featured_image'] ?? '', 'creator') ?>" 
                                      alt="<?= htmlspecialchars($item['title']) ?>"
                                      onerror="this.src='<?= SITE_URL ?>/assets/images/techinhausa-about.jpg'">
@@ -238,7 +238,7 @@ include 'partials/header.php';
                             <?php endif; ?>
                             
                             <h3 class="creator-card-title">
-                                <a href="<?= SITE_URL ?>/creator-single.php?id=<?= $item['id'] ?>&slug=<?= $item['slug'] ?>">
+                                <a href="<?= SITE_URL ?>/item.php?id=<?= $item['id'] ?>&slug=<?= $item['slug'] ?>">
                                     <?= htmlspecialchars($item['title']) ?>
                                 </a>
                             </h3>
@@ -262,7 +262,7 @@ include 'partials/header.php';
                                     <i class="fas fa-play"></i> Watch
                                 </a>
                             <?php else: ?>
-                                <a href="<?= SITE_URL ?>/creator-single.php?id=<?= $item['id'] ?>&slug=<?= $item['slug'] ?>" class="read-btn">
+                                <a href="<?= SITE_URL ?>/item.php?id=<?= $item['id'] ?>&slug=<?= $item['slug'] ?>" class="read-btn">
                                     <i class="fas fa-book-open"></i> Read
                                 </a>
                             <?php endif; ?>

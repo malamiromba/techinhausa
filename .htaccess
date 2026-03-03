@@ -13,67 +13,82 @@ RewriteCond %{REQUEST_URI} /(.*)/$
 RewriteRule ^ /%1 [R=301,L]
 
 # ============================================
-# CONTENT URL ROUTING
+# SINGLE PAGE ROUTING (Your specified URLs)
 # ============================================
 
-# Video URLs - /video/slug
-RewriteRule ^videos/([a-zA-Z0-9_-]+)$ videos/single.php?slug=$1 [L,QSA]
+# Video pages - /watch.php?slug=example
+RewriteRule ^watch/([a-zA-Z0-9_-]+)$ watch.php?slug=$1 [L,QSA]
 
-# Blog URLs - /blog/slug
-RewriteRule ^blog/([a-zA-Z0-9_-]+)$ blog/single.php?slug=$1 [L,QSA]
+# Blog pages - /post.php?slug=example
+RewriteRule ^post/([a-zA-Z0-9_-]+)$ post.php?slug=$1 [L,QSA]
 
-# News URLs - /news/slug
-RewriteRule ^news/([a-zA-Z0-9_-]+)$ news/single.php?slug=$1 [L,QSA]
+# News pages - /article.php?slug=example
+RewriteRule ^article/([a-zA-Z0-9_-]+)$ article.php?slug=$1 [L,QSA]
 
-# Research URLs - /research/slug
-RewriteRule ^research/([a-zA-Z0-9_-]+)$ research/single.php?slug=$1 [L,QSA]
+# Research pages - /paper.php?slug=example
+RewriteRule ^paper/([a-zA-Z0-9_-]+)$ paper.php?slug=$1 [L,QSA]
 
-# Creator URLs - /creator/slug
-RewriteRule ^creator/([a-zA-Z0-9_-]+)$ creator/single.php?slug=$1 [L,QSA]
-
-# ============================================
-# PAGINATION ROUTING
-# ============================================
-
-# Video pagination - /videos/page/2
-RewriteRule ^videos/page/([0-9]+)$ videos/index.php?page=$1 [L,QSA]
-
-# Blog pagination - /blog/page/2
-RewriteRule ^blog/page/([0-9]+)$ blog/index.php?page=$1 [L,QSA]
-
-# News pagination - /news/page/2
-RewriteRule ^news/page/([0-9]+)$ news/index.php?page=$1 [L,QSA]
-
-# Research pagination - /research/page/2
-RewriteRule ^research/page/([0-9]+)$ research/index.php?page=$1 [L,QSA]
-
-# Creator pagination - /creator/page/2
-RewriteRule ^creator/page/([0-9]+)$ creator/index.php?page=$1 [L,QSA]
+# Creator pages - /item.php?slug=example
+RewriteRule ^item/([a-zA-Z0-9_-]+)$ item.php?slug=$1 [L,QSA]
 
 # ============================================
-# CATEGORY FILTER ROUTING
+# LISTING PAGES (Direct access)
 # ============================================
 
-# Videos by category - /videos/category/programming
-RewriteRule ^videos/category/([a-zA-Z0-9_-]+)$ videos/index.php?category=$1 [L,QSA]
+# Main listing pages
+RewriteRule ^videos$ videos.php [L,QSA]
+RewriteRule ^blog$ blog.php [L,QSA]
+RewriteRule ^news$ news.php [L,QSA]
+RewriteRule ^research$ research.php [L,QSA]
+RewriteRule ^creator$ creator.php [L,QSA]
 
-# Blog by category - /blog/category/ai-ml
-RewriteRule ^blog/category/([a-zA-Z0-9_-]+)$ blog/index.php?category=$1 [L,QSA]
-
-# News by category - /news/category/tech-news
-RewriteRule ^news/category/([a-zA-Z0-9_-]+)$ news/index.php?category=$1 [L,QSA]
-
-# Research by category - /research/category/research
-RewriteRule ^research/category/([a-zA-Z0-9_-]+)$ research/index.php?category=$1 [L,QSA]
+# Pagination support
+RewriteRule ^videos/page/([0-9]+)$ videos.php?page=$1 [L,QSA]
+RewriteRule ^blog/page/([0-9]+)$ blog.php?page=$1 [L,QSA]
+RewriteRule ^news/page/([0-9]+)$ news.php?page=$1 [L,QSA]
+RewriteRule ^research/page/([0-9]+)$ research.php?page=$1 [L,QSA]
+RewriteRule ^creator/page/([0-9]+)$ creator.php?page=$1 [L,QSA]
 
 # ============================================
-# STATIC ASSETS
+# FILTER ROUTING (Categories, Tags, Search)
 # ============================================
 
-# Cache static assets
-<FilesMatch "\.(css|js|jpg|jpeg|png|gif|ico|webp|svg|woff|woff2|ttf|eot)$">
-    Header set Cache-Control "max-age=2592000, public"
-</FilesMatch>
+# Category filters
+RewriteRule ^videos/category/([a-zA-Z0-9_-]+)$ videos.php?category=$1 [L,QSA]
+RewriteRule ^blog/category/([a-zA-Z0-9_-]+)$ blog.php?category=$1 [L,QSA]
+RewriteRule ^news/category/([a-zA-Z0-9_-]+)$ news.php?category=$1 [L,QSA]
+RewriteRule ^research/category/([a-zA-Z0-9_-]+)$ research.php?category=$1 [L,QSA]
+RewriteRule ^creator/category/([a-zA-Z0-9_-]+)$ creator.php?category=$1 [L,QSA]
+
+# Tag filters
+RewriteRule ^videos/tag/([a-zA-Z0-9_-]+)$ videos.php?tag=$1 [L,QSA]
+RewriteRule ^blog/tag/([a-zA-Z0-9_-]+)$ blog.php?tag=$1 [L,QSA]
+RewriteRule ^news/tag/([a-zA-Z0-9_-]+)$ news.php?tag=$1 [L,QSA]
+RewriteRule ^research/tag/([a-zA-Z0-9_-]+)$ research.php?tag=$1 [L,QSA]
+
+# Type filters (for creator)
+RewriteRule ^creator/type/([a-zA-Z0-9_-]+)$ creator.php?type=$1 [L,QSA]
+
+# ============================================
+# STATIC ASSETS CACHING
+# ============================================
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+</IfModule>
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(css|js|jpg|jpeg|png|gif|ico|webp|svg|woff|woff2|ttf|eot)$">
+        Header set Cache-Control "max-age=2592000, public"
+    </FilesMatch>
+</IfModule>
 
 # ============================================
 # SECURITY HEADERS
@@ -105,7 +120,7 @@ ErrorDocument 403 /403.php
 ErrorDocument 500 /500.php
 
 # ============================================
-# PROTECT SENSITIVE FILES
+# PROTECT SENSITIVE FILES AND FOLDERS
 # ============================================
 
 # Block access to .htaccess itself
@@ -126,34 +141,24 @@ RewriteRule ^includes/ - [F,L]
 # Block access to partials directory
 RewriteRule ^partials/ - [F,L]
 
+# Block access to uploads PHP execution
+<Directory "uploads">
+    <FilesMatch "\.php$">
+        Order Deny,Allow
+        Deny from all
+    </FilesMatch>
+</Directory>
+
 # ============================================
 # COMPRESSION
 # ============================================
-# Serve sitemap.xml from sitemap.php
-RewriteRule ^sitemap\.xml$ sitemap.php [L]
+
 <IfModule mod_deflate.c>
-    # Compress HTML, CSS, JavaScript, Text, XML, fonts
-    AddOutputFilterByType DEFLATE application/javascript
-    AddOutputFilterByType DEFLATE application/rss+xml
-    AddOutputFilterByType DEFLATE application/vnd.ms-fontobject
-    AddOutputFilterByType DEFLATE application/x-font
-    AddOutputFilterByType DEFLATE application/x-font-opentype
-    AddOutputFilterByType DEFLATE application/x-font-otf
-    AddOutputFilterByType DEFLATE application/x-font-truetype
-    AddOutputFilterByType DEFLATE application/x-font-ttf
-    AddOutputFilterByType DEFLATE application/x-javascript
-    AddOutputFilterByType DEFLATE application/xhtml+xml
-    AddOutputFilterByType DEFLATE application/xml
-    AddOutputFilterByType DEFLATE font/opentype
-    AddOutputFilterByType DEFLATE font/otf
-    AddOutputFilterByType DEFLATE font/ttf
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript
+    AddOutputFilterByType DEFLATE application/javascript application/x-javascript
+    AddOutputFilterByType DEFLATE application/xml application/xhtml+xml application/rss+xml
+    AddOutputFilterByType DEFLATE application/json
     AddOutputFilterByType DEFLATE image/svg+xml
-    AddOutputFilterByType DEFLATE image/x-icon
-    AddOutputFilterByType DEFLATE text/css
-    AddOutputFilterByType DEFLATE text/html
-    AddOutputFilterByType DEFLATE text/javascript
-    AddOutputFilterByType DEFLATE text/plain
-    AddOutputFilterByType DEFLATE text/xml
 </IfModule>
 
 # ============================================
@@ -167,3 +172,14 @@ Options -Indexes
 # ============================================
 
 AddDefaultCharset UTF-8
+
+# ============================================
+# EXISTING FILES/DIRECTORIES CHECK
+# ============================================
+
+# If the request is not for a valid file or directory,
+# and doesn't match any rewrite rules above, 
+# pass it through to index.php (for clean URLs)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?route=$1 [L,QSA]

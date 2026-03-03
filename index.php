@@ -11,61 +11,74 @@ if (!$conn) {
 
 include __DIR__ . "/partials/header.php";
 
-// Get featured content for hero slider (from all content types)
+// ============================================
+// URL MAPPING (as specified)
+// ============================================
+$pageMap = [
+    'video' => 'watch.php',
+    'blog' => 'post.php',
+    'news' => 'article.php',
+    'research' => 'paper.php',
+    'creator' => 'item.php'
+];
+
+// ============================================
+// HERO SLIDER - Only is_featured content
+// ============================================
 $featuredContent = [];
 
 // Featured Videos
-$videos = mysqli_query($conn,
+$videosQuery = mysqli_query($conn,
     "SELECT id, title, slug, 'video' as content_type, excerpt, featured_image, author, published_at, views
      FROM videos
      WHERE is_featured = 1 AND is_published = 1
      ORDER BY published_at DESC
      LIMIT 3"
 );
-if ($videos && mysqli_num_rows($videos) > 0) {
-    while ($row = mysqli_fetch_assoc($videos)) {
+if ($videosQuery && mysqli_num_rows($videosQuery) > 0) {
+    while ($row = mysqli_fetch_assoc($videosQuery)) {
         $featuredContent[] = $row;
     }
 }
 
 // Featured Blog Posts
-$blogs = mysqli_query($conn,
+$blogsQuery = mysqli_query($conn,
     "SELECT id, title, slug, 'blog' as content_type, excerpt, featured_image, author, published_at, views
      FROM blog_posts
      WHERE is_featured = 1 AND is_published = 1
      ORDER BY published_at DESC
      LIMIT 3"
 );
-if ($blogs && mysqli_num_rows($blogs) > 0) {
-    while ($row = mysqli_fetch_assoc($blogs)) {
+if ($blogsQuery && mysqli_num_rows($blogsQuery) > 0) {
+    while ($row = mysqli_fetch_assoc($blogsQuery)) {
         $featuredContent[] = $row;
     }
 }
 
 // Featured News
-$news = mysqli_query($conn,
+$newsQuery = mysqli_query($conn,
     "SELECT id, title, slug, 'news' as content_type, excerpt, featured_image, author, published_at, views
      FROM news
      WHERE is_featured = 1 AND is_published = 1
      ORDER BY published_at DESC
      LIMIT 3"
 );
-if ($news && mysqli_num_rows($news) > 0) {
-    while ($row = mysqli_fetch_assoc($news)) {
+if ($newsQuery && mysqli_num_rows($newsQuery) > 0) {
+    while ($row = mysqli_fetch_assoc($newsQuery)) {
         $featuredContent[] = $row;
     }
 }
 
-// Featured Research (for hero slider)
-$featuredResearch = mysqli_query($conn,
+// Featured Research
+$researchQuery = mysqli_query($conn,
     "SELECT id, title, slug, 'research' as content_type, excerpt, featured_image, author, published_at, views
      FROM research
      WHERE is_featured = 1 AND is_published = 1
      ORDER BY published_at DESC
      LIMIT 3"
 );
-if ($featuredResearch && mysqli_num_rows($featuredResearch) > 0) {
-    while ($row = mysqli_fetch_assoc($featuredResearch)) {
+if ($researchQuery && mysqli_num_rows($researchQuery) > 0) {
+    while ($row = mysqli_fetch_assoc($researchQuery)) {
         $featuredContent[] = $row;
     }
 }
@@ -78,43 +91,9 @@ if (!empty($featuredContent)) {
     $featuredContent = array_slice($featuredContent, 0, 5);
 }
 
-// If no featured content, use default slides
-if (empty($featuredContent)) {
-    $featuredContent = [
-        [
-            'id' => 0,
-            'title' => 'TechInHausa - Learn Technology in Hausa',
-            'slug' => '#',
-            'content_type' => 'default',
-            'excerpt' => 'Come and learn modern technology and AI in your native language.',
-            'featured_image' => 'assets/images/hero-tech-1.jpg',
-            'author' => 'MalamIromba',
-            'published_at' => date('Y-m-d H:i:s')
-        ],
-        [
-            'id' => 1,
-            'title' => 'Hausa AI - Understanding Artificial Intelligence',
-            'slug' => '#',
-            'content_type' => 'default',
-            'excerpt' => 'Learn how AI works and how you can use it in your daily life.',
-            'featured_image' => 'assets/images/hero-ai-2.jpg',
-            'author' => 'MalamIromba',
-            'published_at' => date('Y-m-d H:i:s')
-        ],
-        [
-            'id' => 2,
-            'title' => 'Computer Programming for Beginners',
-            'slug' => '#',
-            'content_type' => 'default',
-            'excerpt' => 'Start learning computer programming from the basics.',
-            'featured_image' => 'assets/images/hero-coding-3.jpg',
-            'author' => 'MalamIromba',
-            'published_at' => date('Y-m-d H:i:s')
-        ]
-    ];
-}
-
-// Get videos (latest & popular)
+// ============================================
+// VIDEOS SECTION - Latest & Popular
+// ============================================
 $latestVideos = mysqli_query($conn,
     "SELECT * FROM videos WHERE is_published = 1 ORDER BY published_at DESC LIMIT 4"
 );
@@ -123,16 +102,9 @@ $popularVideos = mysqli_query($conn,
     "SELECT * FROM videos WHERE is_published = 1 ORDER BY views DESC LIMIT 4"
 );
 
-// Get MalamIromba content (by Ibrahim Zubairu)
-$malamIrombaContent = mysqli_query($conn,
-    "(SELECT id, title, slug, 'video' as type, excerpt, featured_image, published_at, 'video' as content_type FROM videos WHERE author LIKE '%Ibrahim Zubairu%' AND is_published = 1)
-     UNION
-     (SELECT id, title, slug, 'blog' as type, excerpt, featured_image, published_at, 'blog' as content_type FROM blog_posts WHERE author LIKE '%Ibrahim Zubairu%' AND is_published = 1)
-     ORDER BY published_at DESC
-     LIMIT 6"
-);
-
-// Get founder info from founders table
+// ============================================
+// FOUNDER SECTION - From founders table
+// ============================================
 $founderQuery = mysqli_query($conn,
     "SELECT * FROM founders
      WHERE is_active = 1
@@ -140,74 +112,132 @@ $founderQuery = mysqli_query($conn,
      LIMIT 1"
 );
 
+$founder = null;
 if ($founderQuery && mysqli_num_rows($founderQuery) > 0) {
     $founderData = mysqli_fetch_assoc($founderQuery);
     $founder = [
         'name' => $founderData['name'],
-        'title' => $founderData['title'] ?? 'MalamIromba',
-        'bio' => $founderData['bio'] ?? 'Founder of TechInHausa',
-        'image' => $founderData['image'] ?? 'assets/images/founder.jpeg',
-        'years_active' => $founderData['years_active'] ?? 5,
-        'projects' => $founderData['projects_count'] ?? 50,
-        'students' => $founderData['students_count'] ?? '10,000+'
-    ];
-} else {
-    // Default founder info
-    $founder = [
-        'name' => 'Ibrahim Zubairu',
-        'title' => 'MalamIromba',
-        'bio' => 'Founder of TechInHausa, passionate about making technology education accessible to Hausa-speaking communities.',
-        'image' => 'assets/images/founder.jpeg',
-        'years_active' => 5,
-        'projects' => 50,
-        'students' => '10,000+'
+        'title' => $founderData['title'] ?? null,
+        'bio' => $founderData['bio'] ?? null,
+        'image' => $founderData['image'] ?? null,
+        'years_active' => $founderData['years_active'] ?? null,
+        'projects' => $founderData['projects_count'] ?? null,
+        'students' => $founderData['students_count'] ?? null,
+        'email' => $founderData['email'] ?? null,
+        'twitter' => $founderData['twitter'] ?? null,
+        'linkedin' => $founderData['linkedin'] ?? null,
+        'github' => $founderData['github'] ?? null
     ];
 }
 
-// Get research items (for research section - FIXED variable name)
+// ============================================
+// MALAMIROMBA CONTENT - From creator table
+// ============================================
+$creatorContent = [];
+
+$creatorQuery = "
+    SELECT id, title, slug, content_type, excerpt, featured_image,
+           video_url, video_duration, file_url, author, views,
+           published_at, created_at
+    FROM creator
+    WHERE (author LIKE '%Ibrahim Zubairu%' OR author = 'MalamIromba')
+      AND is_published = 1
+    ORDER BY 
+        CASE 
+            WHEN is_featured = 1 THEN 0 
+            ELSE 1 
+        END,
+        published_at DESC 
+    LIMIT 6
+";
+
+$creatorResult = mysqli_query($conn, $creatorQuery);
+
+if ($creatorResult && mysqli_num_rows($creatorResult) > 0) {
+    while ($row = mysqli_fetch_assoc($creatorResult)) {
+        $creatorContent[] = $row;
+    }
+}
+
+// If no creator content, try videos and blog_posts by author
+if (empty($creatorContent)) {
+    $videosByAuthor = mysqli_query($conn,
+        "SELECT id, title, slug, 'video' as content_type, excerpt, featured_image, published_at, views 
+         FROM videos 
+         WHERE author LIKE '%Ibrahim Zubairu%' AND is_published = 1 
+         ORDER BY published_at DESC 
+         LIMIT 3"
+    );
+    
+    if ($videosByAuthor && mysqli_num_rows($videosByAuthor) > 0) {
+        while ($row = mysqli_fetch_assoc($videosByAuthor)) {
+            $creatorContent[] = $row;
+        }
+    }
+    
+    $blogsByAuthor = mysqli_query($conn,
+        "SELECT id, title, slug, 'blog' as content_type, excerpt, featured_image, published_at, views 
+         FROM blog_posts 
+         WHERE author LIKE '%Ibrahim Zubairu%' AND is_published = 1 
+         ORDER BY published_at DESC 
+         LIMIT " . (6 - count($creatorContent))
+    );
+    
+    if ($blogsByAuthor && mysqli_num_rows($blogsByAuthor) > 0) {
+        while ($row = mysqli_fetch_assoc($blogsByAuthor)) {
+            $creatorContent[] = $row;
+        }
+    }
+}
+
+// ============================================
+// RESEARCH SECTION
+// ============================================
 $researchItems = mysqli_query($conn,
     "SELECT * FROM research WHERE is_published = 1 ORDER BY published_at DESC LIMIT 4"
 );
 
-// Get media features
+// ============================================
+// MEDIA FEATURES SECTION
+// ============================================
 $mediaFeatures = mysqli_query($conn,
     "SELECT * FROM media_features WHERE is_active = 1 ORDER BY is_featured DESC, feature_date DESC LIMIT 6"
 );
 
-// Get blog posts
+// ============================================
+// BLOG POSTS SECTION
+// ============================================
 $blogPosts = mysqli_query($conn,
     "SELECT * FROM blog_posts WHERE is_published = 1 ORDER BY published_at DESC LIMIT 4"
 );
 
-// Get sponsors
+// ============================================
+// SPONSORS SECTION
+// ============================================
 $sponsors = mysqli_query($conn,
     "SELECT * FROM sponsors WHERE is_active = 1 ORDER BY
      FIELD(sponsor_level, 'platinum', 'gold', 'silver', 'bronze'), display_order ASC LIMIT 8"
 );
 ?>
 
-<!-- HERO SLIDER SECTION -->
+<!-- HERO SLIDER SECTION - Only shows if there's featured content -->
+<?php if (!empty($featuredContent)): ?>
 <section class="hero-slider-section">
     <div class="hero-slider-container">
         <div class="hero-slider" id="heroSlider">
             <?php foreach ($featuredContent as $index => $slide): ?>
             <div class="hero-slide <?php echo $index === 0 ? 'active' : ''; ?>">
-                <?php if ($slide['content_type'] !== 'default'): ?>
-                <a href="<?php echo SITE_URL; ?>/<?php echo $slide['content_type']; ?>/<?php echo $slide['slug']; ?>" class="hero-slide-link">
-                <?php else: ?>
-                <div class="hero-slide-link" style="cursor: default;">
-                <?php endif; ?>
-               
+                <?php
+                $targetPage = $pageMap[$slide['content_type']] ?? '#';
+                ?>
+                <a href="<?php echo SITE_URL; ?>/<?php echo $targetPage; ?>?slug=<?php echo $slide['slug']; ?>" class="hero-slide-link">
                     <div class="hero-image">
-                        <img src="<?php echo !empty($slide['featured_image'])
-                            ? (strpos($slide['featured_image'], 'assets/') === 0 ? SITE_URL . '/' . $slide['featured_image'] : getImageUrl($slide['featured_image'], $slide['content_type'] ?? 'content'))
-                            : SITE_URL . '/assets/images/hero-default.jpg'; ?>"
+                        <img src="<?php echo getImageUrl($slide['featured_image'] ?? '', $slide['content_type']); ?>"
                              alt="<?php echo $slide['title']; ?>">
-                        <div class="hero-overlay" style="background: linear-gradient(to right, rgba(3,24,55,0.95), rgba(1,1,1,0.8));"></div>
+                        <div class="hero-overlay"></div>
                     </div>
                    
                     <div class="hero-content container">
-                        <?php if ($slide['content_type'] !== 'default'): ?>
                         <span class="hero-category">
                             <?php
                             $labels = [
@@ -219,7 +249,6 @@ $sponsors = mysqli_query($conn,
                             echo $labels[$slide['content_type']] ?? strtoupper($slide['content_type']);
                             ?>
                         </span>
-                        <?php endif; ?>
                        
                         <h1 class="hero-title"><?php echo $slide['title']; ?></h1>
                        
@@ -229,24 +258,16 @@ $sponsors = mysqli_query($conn,
                        
                         <div class="hero-meta">
                             <span><i class="fas fa-user"></i> <?php echo $slide['author'] ?? 'MalamIromba'; ?></span>
-                            <span><i class="fas fa-calendar-alt"></i> <?php echo formatDateHausa($slide['published_at'] ?? ''); ?></span>
+                            <span><i class="fas fa-calendar-alt"></i> <?php echo formatDate($slide['published_at'] ?? ''); ?></span>
                         </div>
                        
-                        <?php if ($slide['content_type'] !== 'default'): ?>
                         <span class="hero-cta">Read Full <i class="fas fa-arrow-right"></i></span>
-                        <?php endif; ?>
                     </div>
-                   
-                <?php if ($slide['content_type'] !== 'default'): ?>
                 </a>
-                <?php else: ?>
-                </div>
-                <?php endif; ?>
             </div>
             <?php endforeach; ?>
         </div>
        
-        <!-- Slider Navigation -->
         <div class="slider-nav">
             <button class="slider-prev" aria-label="Previous slide"><i class="fas fa-chevron-left"></i></button>
             <div class="slider-dots">
@@ -258,8 +279,10 @@ $sponsors = mysqli_query($conn,
         </div>
     </div>
 </section>
+<?php endif; ?>
 
 <!-- VIDEOS SECTION - Latest & Popular -->
+<?php if (($latestVideos && mysqli_num_rows($latestVideos) > 0) || ($popularVideos && mysqli_num_rows($popularVideos) > 0)): ?>
 <section class="videos-section">
     <div class="container">
         <div class="section-header">
@@ -279,7 +302,7 @@ $sponsors = mysqli_query($conn,
                     <?php while ($video = mysqli_fetch_assoc($latestVideos)): ?>
                         <div class="video-card">
                             <div class="video-thumbnail">
-                                <a href="<?php echo SITE_URL; ?>/videos/<?php echo $video['slug']; ?>">
+                                <a href="<?php echo SITE_URL; ?>/watch.php?slug=<?php echo $video['slug']; ?>">
                                     <img src="<?php echo getImageUrl($video['featured_image'] ?? '', 'video'); ?>"
                                          alt="<?php echo $video['title']; ?>">
                                     <?php if (!empty($video['video_duration'])): ?>
@@ -289,7 +312,7 @@ $sponsors = mysqli_query($conn,
                                 </a>
                             </div>
                             <div class="video-info">
-                                <h3><a href="<?php echo SITE_URL; ?>/videos/<?php echo $video['slug']; ?>"><?php echo $video['title']; ?></a></h3>
+                                <h3><a href="<?php echo SITE_URL; ?>/watch.php?slug=<?php echo $video['slug']; ?>"><?php echo $video['title']; ?></a></h3>
                                 <p><?php echo truncateText($video['excerpt'] ?? '', 80); ?></p>
                                 <div class="video-meta">
                                     <span><i class="fas fa-eye"></i> <?php echo number_format($video['views'] ?? 0); ?></span>
@@ -298,8 +321,6 @@ $sponsors = mysqli_query($conn,
                             </div>
                         </div>
                     <?php endwhile; ?>
-                <?php else: ?>
-                    <p class="empty-state">No videos available at the moment.</p>
                 <?php endif; ?>
             </div>
         </div>
@@ -310,7 +331,7 @@ $sponsors = mysqli_query($conn,
                     <?php while ($video = mysqli_fetch_assoc($popularVideos)): ?>
                         <div class="video-card">
                             <div class="video-thumbnail">
-                                <a href="<?php echo SITE_URL; ?>/videos/<?php echo $video['slug']; ?>">
+                                <a href="<?php echo SITE_URL; ?>/watch.php?slug=<?php echo $video['slug']; ?>">
                                     <img src="<?php echo getImageUrl($video['featured_image'] ?? '', 'video'); ?>"
                                          alt="<?php echo $video['title']; ?>">
                                     <?php if (!empty($video['video_duration'])): ?>
@@ -320,7 +341,7 @@ $sponsors = mysqli_query($conn,
                                 </a>
                             </div>
                             <div class="video-info">
-                                <h3><a href="<?php echo SITE_URL; ?>/videos/<?php echo $video['slug']; ?>"><?php echo $video['title']; ?></a></h3>
+                                <h3><a href="<?php echo SITE_URL; ?>/watch.php?slug=<?php echo $video['slug']; ?>"><?php echo $video['title']; ?></a></h3>
                                 <p><?php echo truncateText($video['excerpt'] ?? '', 80); ?></p>
                                 <div class="video-meta">
                                     <span><i class="fas fa-eye"></i> <?php echo number_format($video['views'] ?? 0); ?></span>
@@ -329,21 +350,21 @@ $sponsors = mysqli_query($conn,
                             </div>
                         </div>
                     <?php endwhile; ?>
-                <?php else: ?>
-                    <p class="empty-state">No videos available at the moment.</p>
                 <?php endif; ?>
             </div>
         </div>
        
         <div class="section-footer">
-            <a href="<?php echo SITE_URL; ?>/videos/" class="view-all-btn">
+            <a href="<?php echo SITE_URL; ?>/videos.php" class="view-all-btn">
                 View All Videos <i class="fas fa-arrow-right"></i>
             </a>
         </div>
     </div>
 </section>
+<?php endif; ?>
 
 <!-- TECH IN HAUSA | HAUSA AI | MALAMIROMBA SECTION -->
+<?php if (!empty($creatorContent)): ?>
 <section class="featured-section malamIromba-section" style="background-color: #f8f9ff;">
     <div class="container">
         <div class="section-header center">
@@ -352,126 +373,70 @@ $sponsors = mysqli_query($conn,
         </div>
        
         <div class="content-grid">
-            <?php
-            // Get MalamIromba content from creator table
-            $creatorQuery = "
-                SELECT id, title, slug, content_type, excerpt, featured_image,
-                       video_url, video_duration, file_url, author, views,
-                       published_at, created_at
-                FROM creator
-                WHERE (author LIKE '%Ibrahim Zubairu%' OR author = 'MalamIromba')
-                  AND is_published = 1
-                ORDER BY published_at DESC
-                LIMIT 6
-            ";
-           
-            $creatorResult = mysqli_query($conn, $creatorQuery);
-           
-            if ($creatorResult && mysqli_num_rows($creatorResult) > 0):
-                while ($item = mysqli_fetch_assoc($creatorResult)):
-            ?>
-                    <div class="content-card">
-                        <div class="card-image">
-                            <a href="<?php echo SITE_URL; ?>/creator/<?php echo $item['slug']; ?>">
-                                <img src="<?php echo getImageUrl($item['featured_image'] ?? '', 'creator'); ?>"
-                                     alt="<?php echo $item['title']; ?>"
-                                     onerror="this.src='<?php echo SITE_URL; ?>/assets/images/techinhausa-about.jpg'">
-                                <?php if ($item['content_type'] === 'video'): ?>
-                                    <span class="play-icon-small"><i class="fas fa-play"></i></span>
-                                <?php elseif ($item['content_type'] === 'publication' && !empty($item['file_url'])): ?>
-                                    <span class="pdf-icon-small"><i class="fas fa-file-pdf"></i></span>
-                                <?php endif; ?>
-                               
-                                <?php if (!empty($item['video_duration'])): ?>
-                                    <span class="video-duration"><?php echo $item['video_duration']; ?></span>
-                                <?php endif; ?>
+            <?php foreach ($creatorContent as $item): ?>
+                <?php
+                $targetPage = $pageMap[$item['content_type']] ?? 'item.php';
+                ?>
+                <div class="content-card">
+                    <div class="card-image">
+                        <a href="<?php echo SITE_URL; ?>/<?php echo $targetPage; ?>?slug=<?php echo $item['slug']; ?>">
+                            <img src="<?php echo getImageUrl($item['featured_image'] ?? '', 'creator'); ?>"
+                                 alt="<?php echo $item['title']; ?>">
+                            <?php if ($item['content_type'] === 'video'): ?>
+                                <span class="play-icon-small"><i class="fas fa-play"></i></span>
+                            <?php elseif (in_array($item['content_type'], ['publication', 'research']) && !empty($item['file_url'])): ?>
+                                <span class="pdf-icon-small"><i class="fas fa-file-pdf"></i></span>
+                            <?php endif; ?>
+                           
+                            <?php if (!empty($item['video_duration'])): ?>
+                                <span class="video-duration"><?php echo $item['video_duration']; ?></span>
+                            <?php endif; ?>
+                        </a>
+                    </div>
+                    <div class="card-content">
+                        <span class="content-badge <?php echo $item['content_type']; ?>">
+                            <?php
+                            $typeLabels = [
+                                'video' => 'Video',
+                                'blog' => 'Blog',
+                                'publication' => 'Publication',
+                                'research' => 'Research',
+                                'tutorial' => 'Tutorial'
+                            ];
+                            echo $typeLabels[$item['content_type']] ?? ucfirst($item['content_type']);
+                            ?>
+                        </span>
+                        <h3>
+                            <a href="<?php echo SITE_URL; ?>/<?php echo $targetPage; ?>?slug=<?php echo $item['slug']; ?>">
+                                <?php echo htmlspecialchars($item['title']); ?>
                             </a>
-                        </div>
-                        <div class="card-content">
-                            <span class="content-badge <?php echo $item['content_type']; ?>">
-                                <?php
-                                $typeLabels = [
-                                    'video' => 'Video',
-                                    'blog' => 'Blog',
-                                    'publication' => 'Publication',
-                                    'tutorial' => 'Tutorial'
-                                ];
-                                echo $typeLabels[$item['content_type']] ?? ucfirst($item['content_type']);
-                                ?>
-                            </span>
-                            <h3>
-                                <a href="<?php echo SITE_URL; ?>/creator/<?php echo $item['slug']; ?>">
-                                    <?php echo htmlspecialchars($item['title']); ?>
-                                </a>
-                            </h3>
-                            <p><?php echo truncateText($item['excerpt'] ?? '', 100); ?></p>
-                            <div class="card-meta">
-                                <span><i class="fas fa-calendar"></i> <?php echo formatDateHausa($item['published_at'] ?? $item['created_at']); ?></span>
-                                <span><i class="fas fa-eye"></i> <?php echo number_format($item['views'] ?? 0); ?></span>
-                            </div>
+                        </h3>
+                        <p><?php echo truncateText($item['excerpt'] ?? '', 100); ?></p>
+                        <div class="card-meta">
+                            <span><i class="fas fa-calendar"></i> <?php echo formatDate($item['published_at'] ?? $item['created_at']); ?></span>
+                            <span><i class="fas fa-eye"></i> <?php echo number_format($item['views'] ?? 0); ?></span>
                         </div>
                     </div>
-            <?php
-                endwhile;
-            else:
-                // Fallback to sample content if no creator content
-                if ($malamIrombaContent && mysqli_num_rows($malamIrombaContent) > 0):
-                    while ($item = mysqli_fetch_assoc($malamIrombaContent)):
-            ?>
-                    <div class="content-card">
-                        <div class="card-image">
-                            <a href="<?php echo SITE_URL; ?>/<?php echo $item['content_type']; ?>/<?php echo $item['slug']; ?>">
-                                <img src="<?php echo getImageUrl($item['featured_image'] ?? '', $item['content_type']); ?>"
-                                     alt="<?php echo $item['title']; ?>"
-                                     onerror="this.src='<?php echo SITE_URL; ?>/assets/images/techinhausa-about.jpg'">
-                                <?php if ($item['content_type'] === 'video'): ?>
-                                    <span class="play-icon-small"><i class="fas fa-play"></i></span>
-                                <?php endif; ?>
-                            </a>
-                        </div>
-                        <div class="card-content">
-                            <span class="content-badge <?php echo $item['content_type']; ?>">
-                                <?php echo $item['content_type'] === 'video' ? 'Video' : 'Blog'; ?>
-                            </span>
-                            <h3>
-                                <a href="<?php echo SITE_URL; ?>/<?php echo $item['content_type']; ?>/<?php echo $item['slug']; ?>">
-                                    <?php echo htmlspecialchars($item['title']); ?>
-                                </a>
-                            </h3>
-                            <p><?php echo truncateText($item['excerpt'] ?? '', 100); ?></p>
-                            <div class="card-meta">
-                                <span><i class="fas fa-calendar"></i> <?php echo formatDateHausa($item['published_at']); ?></span>
-                                <span><i class="fas fa-eye"></i> <?php echo number_format($item['views'] ?? 0); ?></span>
-                            </div>
-                        </div>
-                    </div>
-            <?php
-                    endwhile;
-                else:
-            ?>
-                <p class="empty-state">MalamIromba content coming soon.</p>
-            <?php
-                endif;
-            endif;
-            ?>
+                </div>
+            <?php endforeach; ?>
         </div>
        
         <div class="section-footer">
-            <a href="<?php echo SITE_URL; ?>/creator/" class="view-all-btn">
+            <a href="<?php echo SITE_URL; ?>/creator.php" class="view-all-btn">
                 View All MalamIromba Content <i class="fas fa-arrow-right"></i>
             </a>
         </div>
     </div>
 </section>
+<?php endif; ?>
 
 <!-- ABOUT US SECTION -->
 <section class="about-section">
     <div class="container">
         <div class="about-grid">
             <div class="about-image">
-                <img src="<?php echo SITE_URL; ?>/assets/images/about-techinhausa.jpg"
-                     alt="About TechInHausa"
-                     onerror="this.src='<?php echo SITE_URL; ?>/assets/images/founder.jpeg'">
+                <img src="<?php echo SITE_URL; ?>/assets/images/techinhausa-about.jpg"
+                     alt="About TechInHausa">
             </div>
             <div class="about-content">
                 <h2 class="section-title">About Us</h2>
@@ -493,45 +458,65 @@ $sponsors = mysqli_query($conn,
     </div>
 </section>
 
-<!-- FOUNDER'S SECTION -->
+<!-- FOUNDER'S SECTION - Only shows if founder data exists -->
+<?php if ($founder && $founder['name']): ?>
 <section class="founder-section" style="background-color: #f8f9ff;">
     <div class="container">
         <div class="founder-grid">
+            <?php if (!empty($founder['image'])): ?>
             <div class="founder-image">
-                <img src="<?php echo getImageUrl($founder['image'] ?? '', 'creator'); ?>"
-                     alt="<?php echo $founder['name']; ?>"
-                     onerror="this.src='<?php echo SITE_URL; ?>/assets/images/techinhausa-about.jpg'">
+                <img src="<?php echo getImageUrl($founder['image'], 'founder'); ?>"
+                     alt="<?php echo $founder['name']; ?>">
             </div>
+            <?php endif; ?>
             <div class="founder-content">
                 <span class="founder-label">Founder</span>
                 <h2 class="section-title"><?php echo $founder['name']; ?></h2>
+                
+                <?php if (!empty($founder['title'])): ?>
                 <h3 class="founder-title"><?php echo $founder['title']; ?></h3>
+                <?php endif; ?>
+                
+                <?php if (!empty($founder['bio'])): ?>
                 <p class="founder-bio"><?php echo $founder['bio']; ?></p>
+                <?php endif; ?>
                
+                <?php if (!empty($founder['years_active']) || !empty($founder['projects']) || !empty($founder['students'])): ?>
                 <div class="founder-stats">
+                    <?php if (!empty($founder['years_active'])): ?>
                     <div class="stat-item">
                         <span class="stat-number"><?php echo $founder['years_active']; ?></span>
                         <span class="stat-label">Years Active</span>
                     </div>
+                    <?php endif; ?>
+                    
+                    <?php if (!empty($founder['projects'])): ?>
                     <div class="stat-item">
                         <span class="stat-number"><?php echo $founder['projects']; ?>+</span>
-                        <span class="stat-label">Projects</span>
+                        <span class="stat-label">Videos</span>
                     </div>
+                    <?php endif; ?>
+                    
+                    <?php if (!empty($founder['students'])): ?>
                     <div class="stat-item">
                         <span class="stat-number"><?php echo $founder['students']; ?></span>
-                        <span class="stat-label">Students</span>
+                        <span class="stat-label">Audience</span>
                     </div>
+                    <?php endif; ?>
                 </div>
+                <?php endif; ?>
                
-                <a href="<?php echo SITE_URL; ?>/creator/" class="read-more-btn">
+                <a href="<?php echo SITE_URL; ?>/creator.php" class="read-more-btn">
                     Read Full Story <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
         </div>
     </div>
 </section>
+<?php endif; ?>
 
 <!-- ACADEMIC PUBLICATIONS & RESEARCH SECTION -->
+<?php if ($researchItems && mysqli_num_rows($researchItems) > 0): ?>
 <section class="research-section">
     <div class="container">
         <div class="section-header">
@@ -542,43 +527,41 @@ $sponsors = mysqli_query($conn,
         </div>
        
         <div class="research-grid">
-            <?php if ($researchItems && mysqli_num_rows($researchItems) > 0): ?>
-                <?php while ($item = mysqli_fetch_assoc($researchItems)): ?>
-                    <div class="research-card">
-                        <div class="research-image">
-                            <img src="<?php echo getImageUrl($item['featured_image'] ?? '', 'research'); ?>"
-                                 alt="<?php echo $item['title']; ?>">
-                            <?php if (!empty($item['file_url'])): ?>
-                                <span class="pdf-badge">PDF</span>
-                            <?php endif; ?>
-                        </div>
-                        <div class="research-content">
-                            <h3><a href="<?php echo SITE_URL; ?>/research/<?php echo $item['slug']; ?>"><?php echo $item['title']; ?></a></h3>
-                            <p><?php echo truncateText($item['excerpt'] ?? $item['abstract'] ?? '', 100); ?></p>
-                            <div class="research-meta">
-                                <span><i class="fas fa-user"></i> <?php echo $item['author'] ?? 'MalamIromba'; ?></span>
-                                <span><i class="fas fa-calendar"></i> <?php echo date('Y', strtotime($item['published_at'] ?? 'now')); ?></span>
-                            </div>
-                            <a href="<?php echo SITE_URL; ?>/research/<?php echo $item['slug']; ?>" class="read-more-link">
-                                Read Full <i class="fas fa-arrow-right"></i>
-                            </a>
-                        </div>
+            <?php while ($item = mysqli_fetch_assoc($researchItems)): ?>
+                <div class="research-card">
+                    <div class="research-image">
+                        <img src="<?php echo getImageUrl($item['featured_image'] ?? '', 'research'); ?>"
+                             alt="<?php echo $item['title']; ?>">
+                        <?php if (!empty($item['file_url'])): ?>
+                            <span class="pdf-badge">PDF</span>
+                        <?php endif; ?>
                     </div>
-                <?php endwhile; ?>
-            <?php else: ?>
-                <p class="empty-state">No research available at the moment.</p>
-            <?php endif; ?>
+                    <div class="research-content">
+                        <h3><a href="<?php echo SITE_URL; ?>/paper.php?slug=<?php echo $item['slug']; ?>"><?php echo $item['title']; ?></a></h3>
+                        <p><?php echo truncateText($item['excerpt'] ?? $item['abstract'] ?? '', 100); ?></p>
+                        <div class="research-meta">
+                            <span><i class="fas fa-user"></i> <?php echo $item['author'] ?? 'MalamIromba'; ?></span>
+                            <span><i class="fas fa-calendar"></i> <?php echo date('Y', strtotime($item['published_at'] ?? 'now')); ?></span>
+                        </div>
+                        <a href="<?php echo SITE_URL; ?>/paper.php?slug=<?php echo $item['slug']; ?>" class="read-more-link">
+                            Read Full <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            <?php endwhile; ?>
         </div>
        
         <div class="section-footer">
-            <a href="<?php echo SITE_URL; ?>/research/" class="view-all-btn">
+            <a href="<?php echo SITE_URL; ?>/research.php" class="view-all-btn">
                 View All Research <i class="fas fa-arrow-right"></i>
             </a>
         </div>
     </div>
 </section>
+<?php endif; ?>
 
 <!-- MEDIA FEATURES & RECOGNITION SECTION -->
+<?php if ($mediaFeatures && mysqli_num_rows($mediaFeatures) > 0): ?>
 <section class="media-section" style="background-color: #f8f9ff;">
     <div class="container">
         <div class="section-header center">
@@ -587,65 +570,39 @@ $sponsors = mysqli_query($conn,
         </div>
        
         <div class="media-grid">
-            <?php if ($mediaFeatures && mysqli_num_rows($mediaFeatures) > 0): ?>
-                <?php while ($media = mysqli_fetch_assoc($mediaFeatures)): ?>
-                    <a href="<?php echo $media['article_url'] ?? '#'; ?>" target="_blank" class="media-card">
-                        <div class="media-logo">
-                            <?php if (!empty($media['outlet_logo'])): ?>
-                                <img src="<?php echo getImageUrl($media['outlet_logo'], 'media'); ?>"
-                                     alt="<?php echo $media['outlet_name']; ?>">
-                            <?php else: ?>
-                                <i class="fas fa-newspaper"></i>
-                            <?php endif; ?>
-                        </div>
-                        <div class="media-content">
-                            <h4><?php echo $media['title']; ?></h4>
-                            <p class="media-outlet"><?php echo $media['outlet_name']; ?></p>
-                            <?php if (!empty($media['feature_date'])): ?>
-                                <span class="media-date"><?php echo date('M Y', strtotime($media['feature_date'])); ?></span>
-                            <?php endif; ?>
-                        </div>
-                        <i class="fas fa-external-link-alt media-icon"></i>
-                    </a>
-                <?php endwhile; ?>
-            <?php else: ?>
-                <!-- Sample media features for demo -->
-                <a href="#" class="media-card">
-                    <div class="media-logo"><i class="fas fa-newspaper"></i></div>
-                    <div class="media-content">
-                        <h4>TechInHausa: Bringing Tech Education to Northern Nigeria</h4>
-                        <p class="media-outlet">TechCrunch</p>
-                        <span class="media-date">Jan 2024</span>
+            <?php while ($media = mysqli_fetch_assoc($mediaFeatures)): ?>
+                <a href="<?php echo $media['article_url'] ?? '#'; ?>" target="_blank" class="media-card">
+                    <div class="media-logo">
+                        <?php if (!empty($media['outlet_logo'])): ?>
+                            <img src="<?php echo getImageUrl($media['outlet_logo'], 'media'); ?>"
+                                 alt="<?php echo $media['outlet_name']; ?>">
+                        <?php else: ?>
+                            <i class="fas fa-newspaper"></i>
+                        <?php endif; ?>
                     </div>
-                </a>
-                <a href="#" class="media-card">
-                    <div class="media-logo"><i class="fas fa-newspaper"></i></div>
                     <div class="media-content">
-                        <h4>Learning Technology in Hausa Language</h4>
-                        <p class="media-outlet">BBC Hausa</p>
-                        <span class="media-date">Feb 2024</span>
+                        <h4><?php echo $media['title']; ?></h4>
+                        <p class="media-outlet"><?php echo $media['outlet_name']; ?></p>
+                        <?php if (!empty($media['feature_date'])): ?>
+                            <span class="media-date"><?php echo date('M Y', strtotime($media['feature_date'])); ?></span>
+                        <?php endif; ?>
                     </div>
+                    <i class="fas fa-external-link-alt media-icon"></i>
                 </a>
-                <a href="#" class="media-card">
-                    <div class="media-logo"><i class="fas fa-newspaper"></i></div>
-                    <div class="media-content">
-                        <h4>Nigerian Developer Creates Tech Platform in Hausa</h4>
-                        <p class="media-outlet">Punch Newspapers</p>
-                        <span class="media-date">Mar 2024</span>
-                    </div>
-                </a>
-            <?php endif; ?>
+            <?php endwhile; ?>
         </div>
        
         <div class="section-footer">
-            <a href="<?php echo SITE_URL; ?>/media/" class="view-all-btn">
+            <a href="<?php echo SITE_URL; ?>/media.php" class="view-all-btn">
                 View All Media Features <i class="fas fa-arrow-right"></i>
             </a>
         </div>
     </div>
 </section>
+<?php endif; ?>
 
-<!-- BLOG SECTION -->
+<!-- BLOG POSTS SECTION -->
+<?php if ($blogPosts && mysqli_num_rows($blogPosts) > 0): ?>
 <section class="blog-section">
     <div class="container">
         <div class="section-header">
@@ -656,40 +613,37 @@ $sponsors = mysqli_query($conn,
         </div>
        
         <div class="blog-grid">
-            <?php if ($blogPosts && mysqli_num_rows($blogPosts) > 0): ?>
-                <?php while ($blog = mysqli_fetch_assoc($blogPosts)): ?>
-                    <div class="blog-card">
-                        <div class="blog-image">
-                            <a href="<?php echo SITE_URL; ?>/blog/<?php echo $blog['slug']; ?>">
-                                <img src="<?php echo getImageUrl($blog['featured_image'] ?? '', 'blog'); ?>"
-                                     alt="<?php echo $blog['title']; ?>">
-                            </a>
-                        </div>
-                        <div class="blog-content">
-                            <h3><a href="<?php echo SITE_URL; ?>/blog/<?php echo $blog['slug']; ?>"><?php echo $blog['title']; ?></a></h3>
-                            <p><?php echo truncateText($blog['excerpt'] ?? $blog['content'] ?? '', 120); ?></p>
-                            <div class="blog-meta">
-                                <span><i class="fas fa-user"></i> <?php echo $blog['author'] ?? 'MalamIromba'; ?></span>
-                                <span><i class="fas fa-calendar"></i> <?php echo formatDateHausa($blog['published_at'] ?? ''); ?></span>
-                            </div>
-                            <a href="<?php echo SITE_URL; ?>/blog/<?php echo $blog['slug']; ?>" class="read-more-link">
-                                Read Full <i class="fas fa-arrow-right"></i>
-                            </a>
-                        </div>
+            <?php while ($blog = mysqli_fetch_assoc($blogPosts)): ?>
+                <div class="blog-card">
+                    <div class="blog-image">
+                        <a href="<?php echo SITE_URL; ?>/post.php?slug=<?php echo $blog['slug']; ?>">
+                            <img src="<?php echo getImageUrl($blog['featured_image'] ?? '', 'blog'); ?>"
+                                 alt="<?php echo $blog['title']; ?>">
+                        </a>
                     </div>
-                <?php endwhile; ?>
-            <?php else: ?>
-                <p class="empty-state">No blog posts available at the moment.</p>
-            <?php endif; ?>
+                    <div class="blog-content">
+                        <h3><a href="<?php echo SITE_URL; ?>/post.php?slug=<?php echo $blog['slug']; ?>"><?php echo $blog['title']; ?></a></h3>
+                        <p><?php echo truncateText($blog['excerpt'] ?? $blog['content'] ?? '', 120); ?></p>
+                        <div class="blog-meta">
+                            <span><i class="fas fa-user"></i> <?php echo $blog['author'] ?? 'MalamIromba'; ?></span>
+                            <span><i class="fas fa-calendar"></i> <?php echo formatDate($blog['published_at'] ?? ''); ?></span>
+                        </div>
+                        <a href="<?php echo SITE_URL; ?>/post.php?slug=<?php echo $blog['slug']; ?>" class="read-more-link">
+                            Read Full <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            <?php endwhile; ?>
         </div>
        
         <div class="section-footer">
-            <a href="<?php echo SITE_URL; ?>/blog/" class="view-all-btn">
+            <a href="<?php echo SITE_URL; ?>/blog.php" class="view-all-btn">
                 View All Blog Posts <i class="fas fa-arrow-right"></i>
             </a>
         </div>
     </div>
 </section>
+<?php endif; ?>
 
 <!-- NEWSLETTER SECTION -->
 <section class="newsletter-section" style="background: linear-gradient(135deg, #031837 0%, #0a2a4a 100%);">
@@ -726,6 +680,7 @@ $sponsors = mysqli_query($conn,
 </section>
 
 <!-- SPONSORS SECTION -->
+<?php if ($sponsors && mysqli_num_rows($sponsors) > 0): ?>
 <section class="sponsors-section">
     <div class="container">
         <div class="section-header center">
@@ -734,37 +689,24 @@ $sponsors = mysqli_query($conn,
         </div>
        
         <div class="sponsors-grid">
-            <?php if ($sponsors && mysqli_num_rows($sponsors) > 0): ?>
-                <?php while ($sponsor = mysqli_fetch_assoc($sponsors)): ?>
-                    <a href="<?php echo $sponsor['website_url'] ?? '#'; ?>" target="_blank" class="sponsor-card">
-                        <img src="<?php echo getImageUrl($sponsor['logo_url'] ?? '', 'sponsor'); ?>"
-                             alt="<?php echo $sponsor['name']; ?>">
-                        <?php if (!empty($sponsor['sponsor_level'])): ?>
-                            <span class="sponsor-level level-<?php echo $sponsor['sponsor_level']; ?>">
-                                <?php echo ucfirst($sponsor['sponsor_level']); ?>
-                            </span>
-                        <?php endif; ?>
-                    </a>
-                <?php endwhile; ?>
-            <?php else: ?>
-                <!-- Sample sponsors -->
-                <div class="sponsor-card sample">
-                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#666;">
-                        <i class="fas fa-building fa-3x"></i>
-                    </div>
-                </div>
-                <div class="sponsor-card sample">
-                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#666;">
-                        <i class="fas fa-building fa-3x"></i>
-                    </div>
-                </div>
-            <?php endif; ?>
+            <?php while ($sponsor = mysqli_fetch_assoc($sponsors)): ?>
+                <a href="<?php echo $sponsor['website_url'] ?? '#'; ?>" target="_blank" class="sponsor-card">
+                    <img src="<?php echo getImageUrl($sponsor['logo_url'] ?? '', 'sponsor'); ?>"
+                         alt="<?php echo $sponsor['name']; ?>">
+                    <?php if (!empty($sponsor['sponsor_level'])): ?>
+                        <span class="sponsor-level level-<?php echo $sponsor['sponsor_level']; ?>">
+                            <?php echo ucfirst($sponsor['sponsor_level']); ?>
+                        </span>
+                    <?php endif; ?>
+                </a>
+            <?php endwhile; ?>
         </div>
     </div>
 </section>
+<?php endif; ?>
 
 <style>
-/* Hero Slider Styles */
+/* Hero Slider Styles - Keeping your existing CSS */
 .hero-slider-section {
     position: relative;
     height: 600px;
@@ -812,6 +754,7 @@ $sponsors = mysqli_query($conn,
     left: 0;
     width: 100%;
     height: 100%;
+    background: linear-gradient(to right, rgba(3,24,55,0.95), rgba(1,1,1,0.8));
 }
 
 .hero-content {
@@ -937,7 +880,7 @@ $sponsors = mysqli_query($conn,
     transform: scale(1.2);
 }
 
-/* Section Styles */
+/* Section Styles - Keeping all your existing section styles */
 .section-header {
     display: flex;
     justify-content: space-between;
@@ -1518,13 +1461,6 @@ $sponsors = mysqli_query($conn,
     width: auto;
     height: auto;
     object-fit: contain;
-}
-
-.sponsor-card.sample {
-    min-height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .sponsor-level {

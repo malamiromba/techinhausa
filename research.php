@@ -189,7 +189,7 @@ include 'partials/header.php';
                                 <div class="research-card-header">
                                     <?php if (!empty($paper['featured_image'])): ?>
                                         <div class="research-card-image">
-                                            <a href="<?= SITE_URL ?>/research-single.php?id=<?= $paper['id'] ?>&slug=<?= $paper['slug'] ?>">
+                                            <a href="<?= SITE_URL ?>/paper.php?id=<?= $paper['id'] ?>&slug=<?= $paper['slug'] ?>">
                                                 <img src="<?= getImageUrl($paper['featured_image'], 'research') ?>" 
                                                      alt="<?= htmlspecialchars($paper['title']) ?>"
                                                      onerror="this.src='<?= SITE_URL ?>/assets/images/techinhausa-about.jpg'">
@@ -221,7 +221,7 @@ include 'partials/header.php';
                                 
                                 <div class="research-card-content">
                                     <h3 class="research-card-title">
-                                        <a href="<?= SITE_URL ?>/research-single.php?id=<?= $paper['id'] ?>&slug=<?= $paper['slug'] ?>">
+                                        <a href="<?= SITE_URL ?>/paper.php?id=<?= $paper['id'] ?>&slug=<?= $paper['slug'] ?>">
                                             <?= htmlspecialchars($paper['title']) ?>
                                         </a>
                                     </h3>
@@ -250,7 +250,7 @@ include 'partials/header.php';
                                     <?php endif; ?>
                                     
                                     <div class="research-card-footer">
-                                        <a href="<?= SITE_URL ?>/research-single.php?id=<?= $paper['id'] ?>&slug=<?= $paper['slug'] ?>" class="read-more-btn">
+                                        <a href="<?= SITE_URL ?>/paper.php?id=<?= $paper['id'] ?>&slug=<?= $paper['slug'] ?>" class="read-more-btn">
                                             Read More <i class="fas fa-arrow-right"></i>
                                         </a>
                                         
@@ -324,7 +324,7 @@ include 'partials/header.php';
                         <div class="featured-research-list">
                             <?php while ($featured = mysqli_fetch_assoc($featured_result)): ?>
                                 <div class="featured-research-item">
-                                    <a href="<?= SITE_URL ?>/research-single.php?id=<?= $featured['id'] ?>&slug=<?= $featured['slug'] ?>" class="featured-research-link">
+                                    <a href="<?= SITE_URL ?>/paper.php?id=<?= $featured['id'] ?>&slug=<?= $featured['slug'] ?>" class="featured-research-link">
                                         <?php if (!empty($featured['featured_image'])): ?>
                                             <div class="featured-research-image">
                                                 <img src="<?= getImageUrl($featured['featured_image'], 'research') ?>" 

@@ -76,7 +76,7 @@ include 'partials/header.php';
                         <?php while ($post = mysqli_fetch_assoc($blog_result)): ?>
                             <article class="blog-card">
                                 <div class="blog-card-image">
-                                    <a href="<?= SITE_URL ?>/blog-single.php?id=<?= $post['id'] ?>&slug=<?= $post['slug'] ?>">
+                                    <a href="<?= SITE_URL ?>/post.php?id=<?= $post['id'] ?>&slug=<?= $post['slug'] ?>">
                                         <img src="<?= getImageUrl($post['featured_image'] ?? '', 'blog') ?>" 
                                              alt="<?= htmlspecialchars($post['title']) ?>"
                                              onerror="this.src='<?= SITE_URL ?>/assets/images/techinhausa-about.jpg'">
@@ -105,7 +105,7 @@ include 'partials/header.php';
                                     </div>
                                     
                                     <h2 class="blog-title">
-                                        <a href="<?= SITE_URL ?>/blog-single.php?id=<?= $post['id'] ?>&slug=<?= $post['slug'] ?>">
+                                        <a href="<?= SITE_URL ?>/post.php?id=<?= $post['id'] ?>&slug=<?= $post['slug'] ?>">
                                             <?= htmlspecialchars($post['title']) ?>
                                         </a>
                                     </h2>
@@ -121,7 +121,7 @@ include 'partials/header.php';
                                         <span class="blog-views">
                                             <i class="fas fa-eye"></i> <?= number_format($post['views'] ?? 0) ?>
                                         </span>
-                                        <a href="<?= SITE_URL ?>/blog-single.php?id=<?= $post['id'] ?>&slug=<?= $post['slug'] ?>" class="read-more-link">
+                                        <a href="<?= SITE_URL ?>/post.php?id=<?= $post['id'] ?>&slug=<?= $post['slug'] ?>" class="read-more-link">
                                             Read More <i class="fas fa-arrow-right"></i>
                                         </a>
                                     </div>
@@ -217,7 +217,7 @@ include 'partials/header.php';
                         <div class="featured-posts-list">
                             <?php while ($featured = mysqli_fetch_assoc($featured_posts)): ?>
                                 <div class="featured-post-item">
-                                    <a href="<?= SITE_URL ?>/blog-single.php?id=<?= $featured['id'] ?>&slug=<?= $featured['slug'] ?>" class="featured-post-link">
+                                    <a href="<?= SITE_URL ?>/post.php?id=<?= $featured['id'] ?>&slug=<?= $featured['slug'] ?>" class="featured-post-link">
                                         <?php if (!empty($featured['featured_image'])): ?>
                                             <div class="featured-post-image">
                                                 <img src="<?= getImageUrl($featured['featured_image'], 'blog') ?>" 
@@ -245,7 +245,7 @@ include 'partials/header.php';
                         <ul class="popular-posts-list">
                             <?php while ($popular = mysqli_fetch_assoc($popular_posts)): ?>
                                 <li>
-                                    <a href="<?= SITE_URL ?>/blog-single.php?id=<?= $popular['id'] ?>&slug=<?= $popular['slug'] ?>">
+                                    <a href="<?= SITE_URL ?>/post.php?id=<?= $popular['id'] ?>&slug=<?= $popular['slug'] ?>">
                                         <i class="fas fa-arrow-right"></i>
                                         <?= htmlspecialchars($popular['title']) ?>
                                         <span class="views-count"><?= number_format($popular['views']) ?> views</span>
