@@ -1,14 +1,21 @@
 <?php
 // includes/functions.php
-echo "<!-- DEBUG: Loading functions.php -->";
 require_once __DIR__ . '/db.php';
 
-// Sanitize input
+// ============================================
+// CORE HELPER FUNCTIONS
+// ============================================
+
+/**
+ * Sanitize input to prevent XSS attacks
+ */
 function sanitize($input) {
     return htmlspecialchars(strip_tags(trim($input)), ENT_QUOTES, 'UTF-8');
 }
 
-// Generate slug from string
+/**
+ * Generate URL-friendly slug from string
+ */
 function createSlug($string) {
     $string = strtolower(trim($string));
     $string = preg_replace('/[^a-z0-9-]/', '-', $string);
@@ -16,7 +23,9 @@ function createSlug($string) {
     return trim($string, '-');
 }
 
-// Get categories by type for navigation
+/**
+ * Get categories by type for navigation menus
+ */
 function getCategoriesByType($type) {
     global $conn;
     
@@ -33,7 +42,9 @@ function getCategoriesByType($type) {
     return $categories;
 }
 
-// Get image URL
+/**
+ * Get image URL with proper path based on content type
+ */
 function getImageUrl($image, $type = 'content') {
     global $SITE_URL;
     
@@ -47,16 +58,17 @@ function getImageUrl($image, $type = 'content') {
     
     $image = ltrim($image, '/');
     
-    // Map types to folders
+    // Map content types to upload folders
     $folders = [
-        'video' => 'videos',
-        'blog' => 'blog',
-        'news' => 'news',
+        'video'    => 'videos',
+        'blog'     => 'blog',
+        'news'     => 'news',
         'research' => 'research',
-        'media' => 'media',
-        'sponsor' => 'sponsors',
-        'creator' => 'creator',
-        'content' => 'content'
+        'media'    => 'media',
+        'sponsor'  => 'sponsors',
+        'creator'  => 'creator',
+        'founder'  => 'founders',
+        'content'  => 'content'
     ];
     
     $folder = $folders[$type] ?? 'content';
@@ -69,7 +81,9 @@ function getImageUrl($image, $type = 'content') {
     return $SITE_URL . '/uploads/' . $folder . '/' . $image;
 }
 
-// Format date in Hausa
+/**
+ * Format date in Hausa language
+ */
 function formatDateHausa($date) {
     if (empty($date)) return 'Ba kwanan wata ba';
     
@@ -88,20 +102,38 @@ function formatDateHausa($date) {
     return "$day $month, $year";
 }
 
-// Truncate text
+/**
+ * Format date in English (for admin/English UI)
+ */
+function formatDate($date) {
+    if (empty($date)) return '';
+    return date('M j, Y', strtotime($date));
+}
+
+/**
+ * Truncate text to specified length
+ */
 function truncateText($text, $length = 100) {
     if (empty($text)) return '';
     if (strlen($text) <= $length) return $text;
     return substr($text, 0, $length) . '...';
 }
 
-// Get YouTube video ID from URL
+/**
+ * Extract YouTube video ID from URL
+ */
 function getYouTubeId($url) {
     preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $url, $matches);
     return $matches[1] ?? '';
 }
 
-// Get featured content for hero slider
+// ============================================
+// CONTENT QUERY FUNCTIONS
+// ============================================
+
+/**
+ * Get featured content for hero slider
+ */
 function getFeaturedContent($limit = 5) {
     global $conn;
     
@@ -168,7 +200,7 @@ function getFeaturedContent($limit = 5) {
         }
     }
     
-    // Sort by date
+    // Sort by date (newest first)
     usort($featuredItems, function($a, $b) {
         return strtotime($b['published_at']) - strtotime($a['published_at']);
     });
@@ -176,45 +208,9 @@ function getFeaturedContent($limit = 5) {
     return array_slice($featuredItems, 0, $limit);
 }
 
-// Get default hero slides
-function getDefaultHeroSlides() {
-    global $SITE_URL;
-    
-    return [
-        [
-            'id' => 0,
-            'title' => 'TechInHausa - Koyan Tech cikin Hausa',
-            'slug' => '#',
-            'content_type' => 'default',
-            'excerpt' => 'Ku zo ku koyi fasahar zamani da AI cikin harshenku na asali. MalamIromba yana koyar da ku.',
-            'featured_image' => '/assets/images/hero-tech-1.jpg',
-            'author' => 'MalamIromba',
-            'published_at' => date('Y-m-d H:i:s')
-        ],
-        [
-            'id' => 1,
-            'title' => 'Hausa AI - Fahimtar Artificial Intelligence',
-            'slug' => '#',
-            'content_type' => 'default',
-            'excerpt' => 'Koyi yadda AI ke aiki da yadda zaka iya amfani da shi a rayuwar ka.',
-            'featured_image' => '/assets/images/hero-ai-2.jpg',
-            'author' => 'MalamIromba',
-            'published_at' => date('Y-m-d H:i:s')
-        ],
-        [
-            'id' => 2,
-            'title' => 'Shirye-shiryen Kwamfuta ga Sababbi',
-            'slug' => '#',
-            'content_type' => 'default',
-            'excerpt' => 'Fara koyon shirye-shiryen kwamfuta daga tushe. PHP, JavaScript, Python da sauransu.',
-            'featured_image' => '/assets/images/hero-coding-3.jpg',
-            'author' => 'MalamIromba',
-            'published_at' => date('Y-m-d H:i:s')
-        ]
-    ];
-}
-
-// Get videos
+/**
+ * Get videos by type (latest or popular)
+ */
 function getVideos($type = 'latest', $limit = 4) {
     global $conn;
     
@@ -238,7 +234,9 @@ function getVideos($type = 'latest', $limit = 4) {
     return $items;
 }
 
-// Get blog posts
+/**
+ * Get latest blog posts
+ */
 function getBlogPosts($limit = 4) {
     global $conn;
     
@@ -256,7 +254,9 @@ function getBlogPosts($limit = 4) {
     return $items;
 }
 
-// Get news
+/**
+ * Get latest news
+ */
 function getNews($limit = 4) {
     global $conn;
     
@@ -274,7 +274,9 @@ function getNews($limit = 4) {
     return $items;
 }
 
-// Get research
+/**
+ * Get latest research
+ */
 function getResearch($limit = 4) {
     global $conn;
     
@@ -292,7 +294,9 @@ function getResearch($limit = 4) {
     return $items;
 }
 
-// Get content by author
+/**
+ * Get content by specific author
+ */
 function getContentByAuthor($author, $limit = 6) {
     global $conn;
     
@@ -339,7 +343,9 @@ function getContentByAuthor($author, $limit = 6) {
     return array_slice($allItems, 0, $limit);
 }
 
-// Get media features
+/**
+ * Get active media features
+ */
 function getMediaFeatures($limit = 6) {
     global $conn;
     
@@ -357,7 +363,9 @@ function getMediaFeatures($limit = 6) {
     return $items;
 }
 
-// Get sponsors
+/**
+ * Get active sponsors sorted by level
+ */
 function getSponsors($limit = 8) {
     global $conn;
     
@@ -375,7 +383,53 @@ function getSponsors($limit = 8) {
     return $items;
 }
 
-// Get about content
+// ============================================
+// STATIC CONTENT FUNCTIONS (Fallbacks)
+// ============================================
+
+/**
+ * Get default hero slides (fallback)
+ */
+function getDefaultHeroSlides() {
+    global $SITE_URL;
+    
+    return [
+        [
+            'id' => 0,
+            'title' => 'TechInHausa - Learn Technology in Hausa',
+            'slug' => '#',
+            'content_type' => 'default',
+            'excerpt' => 'Come and learn modern technology and AI in your native language.',
+            'featured_image' => '/assets/images/hero-tech-1.jpg',
+            'author' => 'MalamIromba',
+            'published_at' => date('Y-m-d H:i:s')
+        ],
+        [
+            'id' => 1,
+            'title' => 'Hausa AI - Understanding Artificial Intelligence',
+            'slug' => '#',
+            'content_type' => 'default',
+            'excerpt' => 'Learn how AI works and how you can use it in your daily life.',
+            'featured_image' => '/assets/images/hero-ai-2.jpg',
+            'author' => 'MalamIromba',
+            'published_at' => date('Y-m-d H:i:s')
+        ],
+        [
+            'id' => 2,
+            'title' => 'Computer Programming for Beginners',
+            'slug' => '#',
+            'content_type' => 'default',
+            'excerpt' => 'Start learning computer programming from the basics.',
+            'featured_image' => '/assets/images/hero-coding-3.jpg',
+            'author' => 'MalamIromba',
+            'published_at' => date('Y-m-d H:i:s')
+        ]
+    ];
+}
+
+/**
+ * Get about page content (static fallback)
+ */
 function getAboutContent() {
     return [
         'title' => 'TechInHausa | Hausa AI | MalamIromba',
@@ -391,3 +445,44 @@ function getAboutContent() {
     ];
 }
 
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+/**
+ * Safe redirect function
+ */
+function redirect($url) {
+    header("Location: $url");
+    exit();
+}
+
+/**
+ * Check if string starts with a given substring
+ */
+function startsWith($haystack, $needle) {
+    return substr($haystack, 0, strlen($needle)) === $needle;
+}
+
+/**
+ * Check if string ends with a given substring
+ */
+function endsWith($haystack, $needle) {
+    $length = strlen($needle);
+    if ($length == 0) return true;
+    return substr($haystack, -$length) === $needle;
+}
+
+/**
+ * Generate random string (for filenames, etc.)
+ */
+function generateRandomString($length = 10) {
+    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $charactersLength = strlen($characters);
+    $randomString = '';
+    for ($i = 0; $i < $length; $i++) {
+        $randomString .= $characters[rand(0, $charactersLength - 1)];
+    }
+    return $randomString;
+}
+?>
